@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            box-sizing: none;
+        }
+
+        body {
+            background-color: rgb(218, 240, 247);
+        }
+
+        header {
+            background-color: blue;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        main {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: white;
+        }
+
+        p {
+            margin: 5px 0 5px 0;
+        }
+
+        h2 {
+            margin: 5px 0 5px 0;
+            color: blue;
+        }
+
+        footer {
+            margin-top: 30px;
+            bottom: 0;
+            background-color: lightgray;
+            width: 100%;
+            text-align: center;
+        }
+
+        .footer {
+            padding: 5px;
+        }
+        .titulo{
+            font-weight: bold;
+        }
+        .ima{
+            text-align: center;
+        }
+        img{
+            width: 60%;
+            height: 50%;
+        }
+        
+/* Imagem clicável */
+.ima img {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.ima img:hover {
+    transform: scale(1.04);
+}
+
+/* Fundo escuro que cobre a tela inteira */
+#cenaAmor {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Imagem principal */
+#imagemAmor {
+    width: auto;
+    height: auto;
+    max-width: 80%;
+    max-height: 75vh;
+    object-fit: contain;
+    border-radius: 20px;
+    box-shadow: 0 0 35px #ff4da6, 0 0 80px #ff1493;
+    animation: aparecer 0.7s ease;
+    z-index: 2;
+}
+
+/* Animação da imagem */
+@keyframes aparecer {
+    from {
+        transform: scale(0.2) rotate(-10deg);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) rotate(0);
+        opacity: 1;
+    }
+}
+
+/* Corações voando */
+.coracao {
+    position: absolute;
+    bottom: -60px;
+    pointer-events: none;
+    animation: subir linear forwards;
+    z-index: 3;
+}
+
+@keyframes subir {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(0.5);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-110vh) rotate(720deg) scale(1.6);
+        opacity: 0;
+    }
+}
+
+/* Efeito de explosão */
+.explosao {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    pointer-events: none;
+    font-size: 25px;
+    animation: explodir 1.5s ease-out forwards;
+    z-index: 4;
+}
+
+@keyframes explodir {
+    from {
+        transform: translate(-50%, -50%) scale(0.2);
+        opacity: 1;
+    }
+    to {
+        transform:
+            translate(
+                calc(-50% + var(--x)),
+                calc(-50% + var(--y))
+            )
+            scale(2) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Botão de fechar */
+#fecharAmor {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    z-index: 10;
+    background: #ff1493;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* Texto romântico */
+#textoAmor {
+    position: absolute;
+    bottom: 7%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: #ffb6e1;
+    font-size: clamp(20px, 4vw, 38px);
+    font-weight: bold;
+    text-shadow: 0 0 15px #ff1493;
+    z-index: 5;
+    animation: pulsar 1s infinite alternate;
+}
+
+@keyframes pulsar {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+}
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1 class="titulo">Entre o Ódio e o Amor: Uma Fanfic de Lula e Jair Bolsonaro</h1>
+        <p>Autor: Túlio | Data: outubro de 20265</p>
+    </header>
+    <main>
+        <h2>Resumo</h2>
+        <p class="ima">
+            <img id="imagemOriginal"
+    onclick="abrirCena()" src="data:image/jpeg;base64,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"
+                alt="resumo">
+        </p>
+        <h2>1. Introdução</h2>
+        <p>Era uma manhã ensolarada em Brasília quando Luiz Inácio Lula da Silva e Jair Bolsonaro receberam um convite
+            misterioso para participar de uma reunião secreta no Palácio da Harmonia, um lugar fictício onde líderes
+            rivais eram convidados a resolver suas diferenças. <br>
+
+            Lula chegou primeiro, ajeitando o paletó e tomando um cafezinho.<br>
+
+            — Companheiro, espero que essa reunião termine antes do almoço. Tenho uma fome danada! — brincou ele.<br>
+
+            Pouco depois, Bolsonaro entrou na sala, com os braços cruzados e uma expressão desconfiada.<br>
+
+            — O que eu estou fazendo aqui? Aposto que isso é alguma armação!<br>
+
+            Os dois se encararam. Durante anos, haviam trocado críticas, provocações e discursos inflamados. A última
+            coisa que imaginavam era passar uma tarde inteira juntos.<br>
+
+            Foi então que a porta se fechou automaticamente.<br>
+
+            Uma voz anunciou pelo alto-falante:<br>
+
+            — Por determinação do organizador, vocês só poderão sair depois de concluir uma atividade de cooperação.<br>
+
+            — Cooperação?! Com ele?! — os dois exclamaram ao mesmo tempo.<br>
+
+            Nenhum deles sabia que aquele encontro mudaria suas vidas para sempre.</p>
+        <h2>2. Desenvolvimento</h2>
+        <p>A atividade consistia em preparar um jantar para um grupo de diplomatas. Lula ficou responsável pela comida,
+            enquanto Bolsonaro deveria organizar a mesa.<br>
+
+            Naturalmente, o desastre começou em menos de dez minutos.<br>
+
+            — Você colocou sal demais! — reclamou Bolsonaro, experimentando o feijão.<br>
+
+            — E você colocou o garfo no lugar da colher! Assim não dá, meu amigo! — respondeu Lula, rindo.<br>
+
+            Depois de algumas discussões e uma panela que quase queimou, os dois finalmente se sentaram para comer.<br>
+
+            Pela primeira vez em muito tempo, conversaram sem câmeras, assessores ou plateias. Falaram sobre suas
+            infâncias, suas famílias, suas inseguranças e o peso de viver sob os olhos de um país inteiro.<br>
+
+            Lula percebeu que Bolsonaro ficava estranhamente quieto quando falava de solidão. Bolsonaro, por sua vez,
+            descobriu que Lula fazia piadas sempre que queria esconder que estava emocionado.<br>
+
+            — Sabe de uma coisa? — disse Lula, olhando pela janela. — A gente passou tanto tempo brigando que talvez
+            tenha esquecido como é simplesmente conversar.<br>
+
+            Bolsonaro ficou em silêncio por alguns segundos.<br>
+
+            — Não espalha isso por aí, mas… talvez você tenha razão.<br>
+
+            Os dois riram.<br>
+
+            Nos dias seguintes, começaram a se encontrar para tomar café. O que começou como uma obrigação tornou-se um
+            hábito. As discussões políticas continuavam, é claro, mas agora eram interrompidas por piadas, olhares
+            demorados e uma inesperada vontade de permanecer juntos.<br>
+
+            Certa noite, enquanto caminhavam pelos jardins de Brasília, Lula parou diante de uma fonte iluminada.<br>
+
+            — Jair, preciso te contar uma coisa.<br>
+
+            — Lá vem discurso — respondeu Bolsonaro, tentando esconder o nervosismo.<br>
+
+            — Não é discurso. É que… eu gosto de estar com você. Mais do que deveria, talvez.<br>
+
+            Bolsonaro arregalou os olhos.<br>
+
+            — Você está falando sério?<br>
+
+            — Pela primeira vez na noite, estou.<br>
+
+            Bolsonaro olhou para o chão, respirou fundo e depois sorriu discretamente.<br>
+
+            — Pois é, Lula. Acho que estou sentindo a mesma coisa.<br>
+
+            O silêncio que veio depois não era desconfortável. Era cheio de possibilidades.<br>
+
+            Então, sob as luzes da capital, os dois deram as mãos.<br>
+
+            A notícia, quando vazou, provocou um verdadeiro terremoto político. Jornais publicaram manchetes
+            inacreditáveis, comentaristas tentaram entender o acontecimento e as redes sociais ficaram inundadas de
+            memes.<br>
+
+            Mas, para os dois, nada disso parecia tão importante quanto descobrir que podiam construir algo inesperado
+            juntos.<br>
+
+            Alguns meses depois, Lula tomou uma decisão: queria fazer uma pergunta especial.</p>
+        <h2>3. Conclusão</h2>
+        <p>Em uma tarde de primavera, Lula convidou Bolsonaro para um jantar à luz de velas. Havia flores sobre a mesa,
+            música suave ao fundo e, no centro, uma pequena caixa de veludo.<br>
+
+            Bolsonaro olhou para a caixa, desconfiado.<br>
+
+            — Lula, o que é isso? Não me diga que você comprou outro relógio!<br>
+
+            Lula riu, ajoelhou-se e abriu a caixa. Dentro havia uma aliança.<br>
+
+            — Jair, meu companheiro de discussões, meu parceiro de café e a pessoa que eu nunca imaginei que pudesse
+            amar… você aceita se casar comigo?<br>
+
+            Bolsonaro ficou completamente imóvel.<br>
+
+            — Você está me pedindo em casamento?<br>
+
+            — Não, estou te oferecendo uma aliança para você usar como enfeite! Claro que estou pedindo!<br>
+
+            Bolsonaro começou a rir, mas logo seus olhos se encheram de lágrimas.<br>
+
+            — Aceito, seu velho teimoso!<br>
+
+            E assim, contra todas as expectativas, começou a preparação para o casamento mais comentado da história
+            fictícia do Brasil.<br>
+
+            A cerimônia aconteceu em um jardim decorado com flores vermelhas e amarelas. Amigos e convidados assistiram,
+            incrédulos e emocionados, enquanto os dois caminhavam até o altar.<br>
+
+            Quando chegou a hora dos votos, Lula segurou as mãos de Bolsonaro.<br>
+
+            — Prometo discordar de você quando for necessário, rir com você quando a vida ficar difícil e nunca deixar
+            faltar café nesta casa.<br>
+
+            Bolsonaro sorriu e respondeu:<br>
+
+            — Prometo ouvir suas histórias, mesmo quando forem longas, dividir a sobremesa e tentar não transformar toda
+            discussão em debate presidencial.<br>
+
+            Os convidados caíram na gargalhada.<br>
+
+            Finalmente, o celebrante anunciou:<br>
+
+            — Declaro vocês oficialmente casados!<br>
+
+            Lula e Bolsonaro trocaram um beijo, enquanto aplausos e flashes iluminavam o jardim.<br>
+
+            Naquela noite, os dois dançaram juntos sob as estrelas. Por alguns instantes, não havia partidos, campanhas
+            ou disputas. Havia apenas duas pessoas que, em uma história completamente improvável, encontraram uma
+            maneira de se aproximar.<br>
+
+            E, quando alguém perguntou a Lula qual era o segredo daquele casamento, ele respondeu:<br>
+
+            — O segredo é simples: amor, paciência e muito café.<br>
+
+            Bolsonaro, ao lado dele, completou:<br>
+
+            — E nunca discutir política antes do café da manhã!<br>
+
+            Os dois começaram a rir.</p>
+        <h2>Referências</h2>
+        <ul>
+            <li>1. SILVA, João. Entre o Ódio e o Amor: uma história de encontros inesperados. Brasília: Editora
+                Imaginação, 2024. (Obra fictícia.)</li>
+
+            <li>2. SANTOS, Maria. Amor e Política: romances impossíveis na literatura. São Paulo: Editora Sonhos, 2023.
+                (Obra fictícia.)</li>
+
+            <li>3. OLIVEIRA, Pedro. A Comédia Romântica na Ficção Brasileira. Rio de Janeiro: Editora Fantasia, 2022.
+                (Obra fictícia.)</li>
+
+            <li>4. AUTOR DESCONHECIDO. O Casamento Inesperado: uma fanfic política. Publicação imaginária, 2025. (Obra
+                fictícia.)</li>
+        </ul>
+    </main>
+    <footer>
+        <p class="footer">&copy; Todos os direitos reservados</p>
+    </footer>
+
+    <div id="cenaAmor" onclick="fecharSeFundo(event)">
+    <button id="fecharAmor" onclick="fecharCena()"
+        aria-label="Fechar">×</button>
+
+    <img id="imagemAmor" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiEBzUdNcgZML9DxJUBRm8as15fWnUcXYwq5B0Mi6mRQ&s=10" alt="Nossa cena romântica">
+
+    <div id="textoAmor">
+        ❤️ O AMOR VENCE TUDO! ❤️
+    </div>
+</div>
+
+<script>
+    const cena = document.getElementById("cenaAmor");
+
+    function abrirCena() {
+        cena.style.display = "flex";
+
+        // Explosão inicial de corações e brilhos
+        for (let i = 0; i < 45; i++) {
+            setTimeout(criarExplosao, i * 20);
+        }
+
+        // Chuva contínua de corações
+        for (let i = 0; i < 30; i++) {
+            setTimeout(criarCoracao, i * 100);
+        }
+
+        // Mantém os corações aparecendo
+        iniciarChuva();
+    }
+
+    let intervaloAmor;
+
+    function iniciarChuva() {
+        clearInterval(intervaloAmor);
+
+        intervaloAmor = setInterval(() => {
+            if (cena.style.display === "none") {
+                clearInterval(intervaloAmor);
+                return;
+            }
+
+            criarCoracao();
+
+            if (Math.random() < 0.45) {
+                criarExplosao();
+            }
+        }, 180);
+    }
+
+    function criarCoracao() {
+        const coracoes = ["❤️", "💖", "💕", "💗", "💘", "💝", "✨", "💞"];
+        const coracao = document.createElement("span");
+
+        coracao.className = "coracao";
+        coracao.textContent =
+            coracoes[Math.floor(Math.random() * coracoes.length)];
+
+        coracao.style.left = Math.random() * 100 + "vw";
+        coracao.style.fontSize = (20 + Math.random() * 35) + "px";
+
+        const duracao = 2 + Math.random() * 3;
+        coracao.style.animationDuration = duracao + "s";
+
+        cena.appendChild(coracao);
+
+        setTimeout(() => coracao.remove(), duracao * 1000);
+    }
+
+    function criarExplosao() {
+        const brilho = document.createElement("span");
+        const simbolos = ["💖", "💘", "❤️", "✨", "💋", "💕"];
+
+        brilho.className = "explosao";
+        brilho.textContent =
+            simbolos[Math.floor(Math.random() * simbolos.length)];
+
+        // Direções aleatórias para espalhar os efeitos
+        const angulo = Math.random() * Math.PI * 2;
+        const distancia = 100 + Math.random() * 350;
+
+        brilho.style.setProperty(
+            "--x", Math.cos(angulo) * distancia + "px"
+        );
+
+        brilho.style.setProperty(
+            "--y", Math.sin(angulo) * distancia + "px"
+        );
+
+        // Explosões em diferentes pontos da tela
+        brilho.style.left = Math.random() * 100 + "%";
+        brilho.style.top = Math.random() * 100 + "%";
+
+        cena.appendChild(brilho);
+
+        setTimeout(() => brilho.remove(), 1600);
+    }
+
+    function fecharCena() {
+        cena.style.display = "none";
+        clearInterval(intervaloAmor);
+    }
+
+    function fecharSeFundo(event) {
+        if (event.target === cena) {
+            fecharCena();
+        }
+    }
+
+    // Também permite fechar usando a tecla Esc
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            fecharCena();
+        }
+    });
+</script>
+</body>
+
+</html>
